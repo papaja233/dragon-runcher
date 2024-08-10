@@ -1,10 +1,9 @@
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
-
 
 local inventoryGui = player:WaitForChild("PlayerGui"):WaitForChild("InventoryGui")
 local cubeContainer = inventoryGui:WaitForChild("CubeContainer")
@@ -37,29 +36,33 @@ local function spawnCube()
 		collectedCubes = collectedCubes - 1
 		updateCubeCounter()
 
-
+		-- Clone the cube and script
 		local collectibleCube = ReplicatedStorage:WaitForChild("CollectibleCube")
 		local newCube = collectibleCube:Clone()
 
-
 		local localScript = ReplicatedStorage:WaitForChild("JumpingCubeScript")
 		local clonedScript = localScript:Clone()
-		clonedScript.Parent = newCube
 
 		-- Calculate the spawn position in front of the player
 		local character = player.Character
 		if character then
 			local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 			local lookVector = humanoidRootPart.CFrame.LookVector
-			local spawnPosition = Vector3.new(
-				humanoidRootPart.Position.X,
-				humanoidRootPart.Position.Y,
-				humanoidRootPart.Position.Z
-			) + (lookVector * 5)
+			local spawnPosition = humanoidRootPart.Position + (lookVector * 5)
 
+			-- Set cube position and properties
 			newCube.Position = spawnPosition
+			newCube.Anchored = false  -- Ensure it's not anchored
+			newCube.CanCollide = true -- Ensure it can collide with the environment
+
+			-- Parent the script to the new cube and disable it initially
+			clonedScript.Parent = newCube
+			clonedScript.Disabled = true
+
+			-- Parent the cube to the workspace
 			newCube.Parent = workspace
 
+			-- Enable the script after everything is set up
 			clonedScript.Disabled = false
 			print("LocalScript enabled for:", newCube.Name)
 		end
